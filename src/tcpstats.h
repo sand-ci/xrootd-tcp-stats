@@ -13,13 +13,14 @@ class TCPStats: public XrdTcpMonPin {
 
     public:
         void Monitor(int fd, XrdNetAddrInfo &netInfo, const char *tident);
+        static std::string GenerateJSON(tcp_info& tcp_info, XrdNetAddrInfo& netInfo);
 
         TCPStats(XrdXrootdGStream* gs);
         virtual ~TCPStats() {};
     
     private:
         XrdXrootdGStream* stream;
-        std::string GenerateJSON(tcp_info& tcp_info, XrdNetAddrInfo& netInfo);
+        
 };
 
 

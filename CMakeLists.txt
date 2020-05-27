@@ -31,6 +31,9 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/vendor/picojson/picojson.h")
     message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif()
 
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/vendor/gtest/CMakeLists.txt")
+    message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
 
 macro(use_cxx11)
   if (CMAKE_VERSION VERSION_LESS "3.1")
@@ -55,6 +58,20 @@ add_library(XrdTCPStats-${XROOTD_PLUGIN_VERSION} SHARED src/tcpstats.cpp)
 target_link_libraries(XrdTCPStats-${XROOTD_PLUGIN_VERSION} -ldl -lpthread ${XROOTD_LIBRARIES})
 #set_target_properties(XrdTCPStats-${XROOTD_PLUGIN_VERSION} PROPERTIES OUTPUT_NAME XrdTCPStats-${XROOTD_PLUGIN_VERSION} SUFFIX ".so" LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/configs/export-lib-symbols")
 set_target_properties(XrdTCPStats-${XROOTD_PLUGIN_VERSION} PROPERTIES OUTPUT_NAME XrdTCPStats-${XROOTD_PLUGIN_VERSION} SUFFIX ".so")
+
+if( BUILD_UNITTESTS )
+
+include(ExternalProject)
+ExternalProject_Add(gtest
+    PREFIX external/gtest
+    URL file://${PROJECT_SOURCE_DIR}/vendor/gtest
+    INSTALL_COMMAND :
+    CMAKE_ARGS
+      -DCMAKE_CXX_FLAGS=-std=gnu++11
+)
+enable_testing()
+add_subdirectory(test)
+endif()
 
 
 SET(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Install path for libraries")
