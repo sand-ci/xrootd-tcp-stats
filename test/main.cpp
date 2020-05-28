@@ -8,10 +8,27 @@
 #include <netdb.h>
 #include <string>
 #include <picojson.h>
+#include <dlfcn.h>
 
 
 namespace {
 
+
+
+TEST(TestLoad, DynTestLoad) {
+
+    void* handle = dlopen("libXrdTCPStats-5.so", RTLD_LAZY);
+    ASSERT_NE(handle, nullptr);
+
+    void* tcp_mon = dlsym(handle, "TcpMonPin");
+
+    char* error = dlerror();
+    if (error)
+        std::cout << error << std::endl;
+
+    ASSERT_NE(tcp_mon, nullptr);
+
+}
 
 class TCPTest : public ::testing::Test {
     protected:
@@ -81,6 +98,8 @@ TEST_F(TCPTest, GenerateJSON) {
     //std::cout << returned_json;
     
 }
+
+
 
 }
 

@@ -27,6 +27,8 @@ class TCPStats: public XrdTcpMonPin {
 class TcpMonPin : public XrdOucPinObject<XrdTcpMonPin>
 {
     public:
+        TcpMonPin() {};
+        virtual ~TcpMonPin() {};
         XrdTcpMonPin *getInstance(const char   *parms,
                             XrdOucEnv    &envR,
                             XrdSysLogger &logR,

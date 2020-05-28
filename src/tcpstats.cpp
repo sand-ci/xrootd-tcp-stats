@@ -33,25 +33,13 @@ void TCPStats::Monitor(int fd, XrdNetAddrInfo &netInfo, const char *tident)
     socklen_t tcp_info_length = sizeof(tcp_info);
     int sockopt_rc = getsockopt( fd, SOL_TCP, TCP_INFO, (void *)&tcp_info, &tcp_info_length );
     if ( sockopt_rc  == 0 ) {
-        auto returnedJSON = TCPStats::GenerateJSON(tcp_info, netInfo);
+        std::string returnedJSON = TCPStats::GenerateJSON(tcp_info, netInfo);
+
+        // Insert the JSON into the gstream
+        // Include the null terminated character in the count
+        this->stream->Insert(returnedJSON.c_str(), returnedJSON.length()+1);
+        
     }
-        // Create the json object
-        /*
-        int sprintf_rc = sprintf(statistics,
-            "connect=%s bytes_in=%llu bytes_out=%llu rtt=%u rttvar=%u unacked=%u sacked=%u "
-            "lost=%u retrans=%u reordering=%u",
-            addr_str,
-            LinkBytesIn,
-            LinkBytesOut,
-            tcp_info.tcpi_rtt,
-            tcp_info.tcpi_rttvar,
-            tcp_info.tcpi_unacked,
-            tcp_info.tcpi_sacked,
-            tcp_info.tcpi_lost,
-            tcp_info.tcpi_retrans,
-            tcp_info.tcpi_reordering
-        );
-        */
 
 }
 

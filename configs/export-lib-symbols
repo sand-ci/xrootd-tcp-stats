@@ -1,6 +1,7 @@
 {
 global:
-  TcpMonPin;
+  *TcpMonPin*;
+  *TCPStats*;
 
 local:
   *;
