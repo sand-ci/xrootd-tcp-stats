@@ -8,7 +8,7 @@ XrdVERSIONINFO(TcpMonPin,XRootDTCP);
 
 
 
-XrdTcpMonPin* TcpMonPin::getInstance(const char   *parms,
+XrdTcpMonPin* myPinObject::getInstance(const char   *parms,
                             XrdOucEnv    &envR,
                             XrdSysLogger &logR,
                             XrdTcpMonPin *prevP)
@@ -26,14 +26,15 @@ TCPStats::TCPStats(XrdXrootdGStream* gs)
     this->stream = gs;
 }
 
-void TCPStats::Monitor(int fd, XrdNetAddrInfo &netInfo, const char *tident)
+void TCPStats::Monitor(XrdNetAddrInfo &netInfo, XrdTcpMonPin::LinkInfo &lnkInfo, int liLen)
 {
+
 
     tcp_info tcp_info;
     socklen_t tcp_info_length = sizeof(tcp_info);
-    int sockopt_rc = getsockopt( fd, SOL_TCP, TCP_INFO, (void *)&tcp_info, &tcp_info_length );
+    int sockopt_rc = getsockopt( lnkInfo.fd, SOL_TCP, TCP_INFO, (void *)&tcp_info, &tcp_info_length );
     if ( sockopt_rc  == 0 ) {
-        std::string returnedJSON = TCPStats::GenerateJSON(tcp_info, netInfo);
+        std::string returnedJSON = TCPStats::GenerateJSON(tcp_info, netInfo, lnkInfo.bytesIn, lnkInfo.bytesOut);
 
         // Insert the JSON into the gstream
         // Include the null terminated character in the count
@@ -43,7 +44,7 @@ void TCPStats::Monitor(int fd, XrdNetAddrInfo &netInfo, const char *tident)
 
 }
 
-std::string TCPStats::GenerateJSON(tcp_info& tcp_info, XrdNetAddrInfo& netInfo)
+std::string TCPStats::GenerateJSON(tcp_info& tcp_info, XrdNetAddrInfo& netInfo, long long bytesIn, long long bytesOut)
 {
     picojson::object wrapper;
     wrapper["type"] = picojson::value("tcpstats");
@@ -60,6 +61,8 @@ std::string TCPStats::GenerateJSON(tcp_info& tcp_info, XrdNetAddrInfo& netInfo)
     wrapper["lost"] = picojson::value(static_cast<double>(tcp_info.tcpi_lost));
     wrapper["retrans"] = picojson::value(static_cast<double>(tcp_info.tcpi_retrans));
     wrapper["reordering"] = picojson::value(static_cast<double>(tcp_info.tcpi_reordering));
+    wrapper["bytes_in"] = picojson::value(static_cast<double>(bytesIn));
+    wrapper["bytes_out"] = picojson::value(static_cast<double>(bytesOut));
 
     return picojson::value(wrapper).serialize();
 }

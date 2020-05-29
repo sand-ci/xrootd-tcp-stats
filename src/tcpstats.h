@@ -12,8 +12,8 @@
 class TCPStats: public XrdTcpMonPin {
 
     public:
-        void Monitor(int fd, XrdNetAddrInfo &netInfo, const char *tident);
-        static std::string GenerateJSON(tcp_info& tcp_info, XrdNetAddrInfo& netInfo);
+        void Monitor(XrdNetAddrInfo &netInfo, XrdTcpMonPin::LinkInfo &lnkInfo, int liLen);
+        static std::string GenerateJSON(tcp_info& tcp_info, XrdNetAddrInfo& netInfo, long long bytesIn, long long bytesOut);
 
         TCPStats(XrdXrootdGStream* gs);
         virtual ~TCPStats() {};
@@ -24,13 +24,13 @@ class TCPStats: public XrdTcpMonPin {
 };
 
 
-class TcpMonPin : public XrdOucPinObject<XrdTcpMonPin>
+class myPinObject : public XrdOucPinObject<XrdTcpMonPin>
 {
     public:
-        TcpMonPin() {};
-        virtual ~TcpMonPin() {};
+        myPinObject() {};
+        virtual ~myPinObject() {};
         XrdTcpMonPin *getInstance(const char   *parms,
                             XrdOucEnv    &envR,
                             XrdSysLogger &logR,
                             XrdTcpMonPin *prevP);
-};
+} TcpMonPin;

@@ -38,7 +38,7 @@ class TCPTest : public ::testing::Test {
 
             m_logger = std::unique_ptr<XrdSysLogger>(new XrdSysLogger());
 
-            auto new_instance =  std::unique_ptr<TcpMonPin>(new TcpMonPin());
+            auto new_instance =  std::unique_ptr<myPinObject>(new myPinObject());
             ASSERT_TRUE(new_instance != nullptr);
 
             XrdTcpMonPin *prevP = nullptr;
@@ -79,7 +79,10 @@ TEST_F(TCPTest, GenerateJSON) {
     name.sin_addr = *(struct in_addr *) hostinfo->h_addr;
     XrdNetAddr xrdnetaddr(&name);
 
-    std::string returned_json = TCPStats::GenerateJSON(tcp_info, xrdnetaddr);
+    long long bytesIn = 10;
+    long long bytesOut = 11;
+
+    std::string returned_json = TCPStats::GenerateJSON(tcp_info, xrdnetaddr, bytesIn, bytesOut);
 
     // Parse the returned JSON
     picojson::value v;
@@ -94,6 +97,9 @@ TEST_F(TCPTest, GenerateJSON) {
     ASSERT_EQ(v.get<picojson::object>()["lost"].get<double>(), 5);
     ASSERT_EQ(v.get<picojson::object>()["retrans"].get<double>(), 6);
     ASSERT_EQ(v.get<picojson::object>()["reordering"].get<double>(), 7);
+    ASSERT_EQ(v.get<picojson::object>()["bytes_in"].get<double>(), 10);
+    ASSERT_EQ(v.get<picojson::object>()["bytes_out"].get<double>(), 11);
+
 
     //std::cout << returned_json;
     
